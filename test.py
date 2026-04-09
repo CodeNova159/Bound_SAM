@@ -8,15 +8,13 @@ import logging
 from model.initial_sapmedsam import init_network
 from trainer import train_net, get_data
 
-from model.initial_sapmedsam import SAPMedSAM
+from model.initial_sapmedsam import Bound_SAM
 
 from monai.metrics import compute_hausdorff_distance, DiceMetric, MeanIoU, HausdorffDistanceMetric
 from monai.losses import DiceCELoss
 from monai.losses import DiceCELoss, DiceLoss
 from tqdm import tqdm
 from model.utils import AverageMeter
-
-from visualize import visualize_frequency_adapter
 
 warnings.filterwarnings("ignore", category=UserWarning)
 for handler in logging.root.handlers[:]:
@@ -107,7 +105,7 @@ if __name__ == '__main__':
 
     image_encoder = init_network(device=device)
 
-    model = SAPMedSAM(
+    model = Bound_SAM(
         image_encoder=image_encoder,
     ).to(device)
 
