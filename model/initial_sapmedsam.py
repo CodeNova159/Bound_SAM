@@ -1,13 +1,11 @@
 import os
 
-os.environ['HF_ENDPOINT'] = "https://hf-mirror.com"
-
 from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
-from .Med_SAM.image_encoder import ImageEncoderViT
-from .Med_SAM.mask_decoder import MaskDecoder
-from .Med_SAM.prompt_encoder import PromptEncoder
-from .Med_SAM import TwoWayTransformer
-from .Med_SAM.common import LayerNorm2d
+from .SAM.image_encoder import ImageEncoderViT
+from .SAM.mask_decoder import MaskDecoder
+from .SAM.prompt_encoder import PromptEncoder
+from .SAM import TwoWayTransformer
+from .SAM.common import LayerNorm2d
 
 from functools import partial
 import torch
@@ -15,11 +13,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 from segment_anything.build_sam import load_from
-from peft import LoraConfig, get_peft_model, TaskType
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from open_clip import create_model_from_pretrained, get_tokenizer
 
 from model.igaf import IGAF
 from model.cgpa import CGPA
@@ -62,21 +58,6 @@ class LoRA_qkv(nn.Module):
         qkv_out[..., -self.dim:] += delta_v
         return qkv_out
 
-def box_to_xyxy(boxes, img_w, img_h):
-
-    cx = boxes[..., 0] * img_w
-    cy = boxes[..., 1] * img_h
-    w  = boxes[..., 2] * img_w
-    h  = boxes[..., 3] * img_h
-
-    x1 = cx - 0.5 * w
-    y1 = cy - 0.5 * h
-    x2 = cx + 0.5 * w
-    y2 = cy + 0.5 * h
-
-    return torch.stack([x1, y1, x2, y2], dim=-1)
-
-
 def init_network(device=None, use_lora=True, lora_rank=4, lora_layers=None):
     sam = sam_model_registry["vit_b"](checkpoint="./model/ckpt/sam_vit_b_01ec64.pth")
     image_encoder = sam.image_encoder
@@ -104,7 +85,7 @@ def init_network(device=None, use_lora=True, lora_rank=4, lora_layers=None):
 
     return image_encoder
 
-class SAPMedSAM(nn.Module):
+class Bound_SAM(nn.Module):
     def __init__(
             self,
             image_encoder,
