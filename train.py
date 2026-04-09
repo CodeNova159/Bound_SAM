@@ -21,7 +21,7 @@ import random
 from model.initial_sapmedsam import init_network
 from trainer import train_net, get_data
 
-from model.initial_sapmedsam import SAPMedSAM
+from model.initial_sapmedsam import Bound_SAM
 
 warnings.filterwarnings("ignore", category=UserWarning)
 for handler in logging.root.handlers[:]:
@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     image_encoder = init_network(device=device)
 
-    model = SAPMedSAM(
+    model = Bound_SAM(
         image_encoder=image_encoder,
     ).to(device)
 
